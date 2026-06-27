@@ -38,11 +38,43 @@ paste rustscan / nmap output here
 
 ---
 
+## Credentials Tracker
+
+| Account | Password / Hash | Source | Shell? |
+|---------|----------------|--------|--------|
+| | | | |
+
+---
+
+## AD Checkpoint *(skip if not AD box)*
+
+> If this is an AD box, do not proceed to foothold exploitation until this is done.
+
+- [ ] BloodHound collected and ingested
+- [ ] All known accounts marked as Owned
+- [ ] "Shortest Paths from Owned Principals" query run
+- [ ] ADCS checked (`certipy find -vulnerable`)
+- [ ] Shell check done across all known hosts (`nxc smb/winrm`)
+
+**BloodHound findings:**
+
+```
+paste shortest path summary here
+```
+
+**ADCS findings:**
+
+```
+paste certipy vulnerable output here (or "No CA found" / "No vulnerable templates")
+```
+
+---
+
 ## Attack Path
 
 ### Foothold
 
-## **What I tried that didn't work:**
+**What I tried that didn't work:**
 
 **What worked:**
 
@@ -52,7 +84,7 @@ paste rustscan / nmap output here
 
 ### Privilege Escalation
 
-## **What I tried that didn't work:**
+**What I tried that didn't work:**
 
 **What worked:**
 
